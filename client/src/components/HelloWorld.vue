@@ -245,6 +245,8 @@
             </table>
         </div>
 
+        <canvas id="projection-chart"></canvas>
+
         <b-modal ref="editWealthPairModal"
                 id="editWealthPair-modal"
                 title="Edit wealth pair"
@@ -393,6 +395,7 @@
 import PortfolioService from '@/services/PortfolioService'
 import axios from 'axios'
 import Alert from './Alert'
+import Chart from 'chart.js'
 
 export default {
     data () {
@@ -440,6 +443,8 @@ export default {
             message:"",
             showMessage: false,
             editForm: {},
+            projection: {},
+            projectionChartData: {},
         };
     },
     methods: {
@@ -461,6 +466,117 @@ export default {
                     this.incomeWealthPairs = res.data.incomeWealthPairs;
                     this.growthWealthPairs = res.data.growthWealthPairs;
                     this.bothWealthPairs = res.data.bothWealthPairs;
+                    this.projection = res.data.projection;
+
+                    this.projectionChartData = {
+                        type: 'line',
+                        data: {
+                            labels: this.projection.xx,
+                            datasets: [
+                                { // one line graph
+                                    label: 'Assets',
+                                    data: this.projection.assets,
+                                    backgroundColor: [
+                                      'rgba(54,73,93,.5)', // Blue
+                                      'rgba(54,73,93,.5)',
+                                      'rgba(54,73,93,.5)',
+                                      'rgba(54,73,93,.5)',
+                                      'rgba(54,73,93,.5)',
+                                      'rgba(54,73,93,.5)',
+                                      'rgba(54,73,93,.5)',
+                                      'rgba(54,73,93,.5)'
+                                    ],
+                                    borderColor: [
+                                      '#36495d',
+                                      '#36495d',
+                                      '#36495d',
+                                      '#36495d',
+                                      '#36495d',
+                                      '#36495d',
+                                      '#36495d',
+                                      '#36495d',
+                                    ],
+                                    borderWidth: 3
+                                },
+                                { // another line graph
+                                    label: 'Debts',
+                                    data: this.projection.debts,
+                                    backgroundColor: [
+                                      'rgba(71, 183,132,.5)', // Green
+                                    ],
+                                    borderColor: [
+                                      '#47b784',
+                                    ],
+                                    borderWidth: 3,
+                                },
+                                { // another line graph
+                                    label: 'Equity',
+                                    data: this.projection.equitys,
+                                    backgroundColor: [
+                                      'rgba(71, 183,132,.5)', // Green
+                                    ],
+                                    borderColor: [
+                                      '#47b784',
+                                    ],
+                                    borderWidth: 3
+                                },
+                                { // another line graph
+                                    label: 'Cumulative Cashflows',
+                                    data: this.projection.cashFlows,
+                                    backgroundColor: [
+                                      'rgba(71, 183,132,.5)', // Green
+                                    ],
+                                    borderColor: [
+                                      '#47b784',
+                                    ],
+                                    borderWidth: 3,
+                                    fill: false
+                                },
+                                { // another line graph
+                                    label: 'Combined Equity/cashFlows',
+                                    data: this.projection.equityAndCashFlows,
+                                    backgroundColor: [
+                                      'rgba(71, 183,132,.5)', // Green
+                                    ],
+                                    borderColor: [
+                                      '#47b784',
+                                    ],
+                                    borderWidth: 3,
+                                    fill: false
+                                },
+                              // { // another line graph
+                              //   label: 'Planet Mass (x1,000 km)',
+                              //   data: [4.8, 12.1, 12.7, 6.7, 139.8, 116.4, 50.7, 49.2],
+                              //   backgroundColor: [
+                              //     'rgba(71, 183,132,.5)', // Green
+                              //   ],
+                              //   borderColor: [
+                              //     '#47b784',
+                              //   ],
+                              //   borderWidth: 3
+                              // }
+                          ]
+                        },
+                        options: {
+                            responsive: true,
+                            lineTension: 1,
+                            scales: {
+                              yAxes: [{
+                                ticks: {
+                                  beginAtZero: true,
+                                  padding: 25,
+                                }
+                              }]
+                            }
+                        }
+                    };
+
+                    const ctx = document.getElementById('projection-chart');
+                    new Chart(ctx, {
+                      type: this.projectionChartData.type,
+                      data: this.projectionChartData.data,
+                      options: this.projectionChartData.options,
+                    });
                 })
                 .catch((error) => {
                     // eslint-disable-next-line
