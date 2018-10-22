@@ -178,7 +178,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(wealthPair, uid) in incomeWealthPairs" :key="uid">
+                    <!-- <tr v-for="(wealthPair, uid) in incomeWealthPairs" :key="uid" v-b-modal.detailWealthPair-Modal> -->
+                    <tr v-for="(wealthPair, uid) in incomeWealthPairs" :key="uid" v-on:click="clickWealthPair(wealthPair)">
                         <td>{{ wealthPair.deal.asset.name }}</td>
                         <td>{{ wealthPair.debtToAssetRatio }}</td>
                         <td>{{ wealthPair.cashFlow }}</td>
@@ -387,6 +388,88 @@
             </b-form>
         </b-modal>
 
+        <b-modal ref="detailWealthPairModal"
+                id="detailWealthPair-Modal"
+                title="Wealth Pair Detail">
+            <h1>{{wealthPair.deal.asset.name}} Summary</h1>
+            <b-container>
+                <b-row>
+                    <b-col>Value</b-col>
+                    <b-col>{{wealthPair.deal.asset.value}}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col>Debt</b-col>
+                    <b-col>{{wealthPair.deal.financing.leverage.amount}}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col>Equity</b-col>
+                    <b-col>{{wealthPair.deal.financing.equity.equityCapital.amount + wealthPair.deal.financing.equity.myCapital.amount}}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col></b-col>
+                    <b-col>Mine - {{wealthPair.deal.financing.equity.myCapital.amount}}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col></b-col>
+                    <b-col>Partner - {{wealthPair.deal.financing.equity.equityCapital.amount}}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col></b-col>
+                    <b-col>% Split - {{wealthPair.deal.financing.equity.equityCapital.percentSplit}}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col>Net Operating Income</b-col>
+                    <b-col>{{wealthPair.deal.asset.noi}}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col>Cap Rate</b-col>
+                    <b-col>{{wealthPair.deal.asset.capRate}}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col>Reserves</b-col>
+                    <b-col>{{wealthPair.reserves}} ({{wealthPair.reservesInMonths}} months)</b-col>
+                </b-row>
+            </b-container>
+            <h2>Return</h2>
+            <b-container>
+                <b-row>
+                    <b-col>Return on Equity</b-col>
+                    <b-col>{{wealthPair.roe}}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col>Equity Partner Return</b-col>
+                    <b-col>{{wealthPair.equityROI}}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col>My Return</b-col>
+                    <b-col>{{wealthPair.myROI}}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col>Total Cash Flow</b-col>
+                    <b-col>{{wealthPair.cashFlow}}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col>Equity Partner Cash Flow</b-col>
+                    <b-col>{{wealthPair.equityPartnerCashFlow}}</b-col>
+                </b-row>
+                <b-row>
+                <b-col>My Cash Flow</b-col>
+                <b-col>{{wealthPair.myCashFlow}}</b-col>
+                </b-row>
+            </b-container>
+            <h2>Risk</h2>
+            <b-container>
+                <b-row>
+                    <b-col>DCR</b-col>
+                    <b-col>{{wealthPair.dcr}}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col>BER</b-col>
+                    <b-col>{{wealthPair.ber}}</b-col>
+                </b-row>
+            </b-container>
+        </b-modal>
+
     </div>
 </template>
 
@@ -445,6 +528,31 @@ export default {
             editForm: {},
             projection: {},
             projectionChartData: {},
+            wealthPair: {
+                deal: {
+                    asset: {
+                        name: '',
+                        noi: '',
+                        capRate: ''
+                    },
+                    financing: {
+                        leverage: {
+                            amount: ''
+                        },
+                        equity: {
+                            equityCapital: {
+                                amount: ''
+                            },
+                            myCapital: {
+                                amount: ''
+                            }
+                        }
+                    },
+                    reserves: {
+                    }
+                }
+            },
+            showDetail:false,
         };
     },
     methods: {
@@ -477,24 +585,10 @@ export default {
                                     label: 'Assets',
                                     data: this.projection.assets,
                                     backgroundColor: [
-                                      'rgba(54,73,93,.5)', // Blue
-                                      'rgba(54,73,93,.5)',
-                                      'rgba(54,73,93,.5)',
-                                      'rgba(54,73,93,.5)',
-                                      'rgba(54,73,93,.5)',
-                                      'rgba(54,73,93,.5)',
-                                      'rgba(54,73,93,.5)',
-                                      'rgba(54,73,93,.5)'
+                                      'rgba(66, 134, 244,.1)' // Blue
                                     ],
                                     borderColor: [
-                                      '#36495d',
-                                      '#36495d',
-                                      '#36495d',
-                                      '#36495d',
-                                      '#36495d',
-                                      '#36495d',
-                                      '#36495d',
-                                      '#36495d',
+                                      '#3e95cd'
                                     ],
                                     borderWidth: 3
                                 },
@@ -502,10 +596,10 @@ export default {
                                     label: 'Debts',
                                     data: this.projection.debts,
                                     backgroundColor: [
-                                      'rgba(71, 183,132,.5)', // Green
+                                      'rgba(255, 28, 7,.2)', // Red
                                     ],
                                     borderColor: [
-                                      '#47b784',
+                                      '#ff1c07',
                                     ],
                                     borderWidth: 3,
                                 },
@@ -513,36 +607,31 @@ export default {
                                     label: 'Equity',
                                     data: this.projection.equitys,
                                     backgroundColor: [
-                                      'rgba(71, 183,132,.5)', // Green
+                                      'rgba(12, 150, 42,.1)', // Green
                                     ],
                                     borderColor: [
-                                      '#47b784',
+                                      '#0c962a',
                                     ],
                                     borderWidth: 3
                                 },
                                 { // another line graph
                                     label: 'Cumulative Cashflows',
                                     data: this.projection.cashFlows,
-                                    backgroundColor: [
-                                      'rgba(71, 183,132,.5)', // Green
-                                    ],
                                     borderColor: [
-                                      '#47b784',
+                                      '#000000' // Black
                                     ],
-                                    borderWidth: 3,
-                                    fill: false
+                                    borderWidth: 3
                                 },
                                 { // another line graph
-                                    label: 'Combined Equity/cashFlows',
+                                    label: 'Combined Equity/Cashflows',
                                     data: this.projection.equityAndCashFlows,
                                     backgroundColor: [
-                                      'rgba(71, 183,132,.5)', // Green
+                                      'rgba(255, 250, 0,.2)', // Yellow
                                     ],
                                     borderColor: [
-                                      '#47b784',
+                                      '#fff600', // Yellow
                                     ],
                                     borderWidth: 3,
-                                    fill: false
                                 },
                               // { // another line graph
                               //   label: 'Planet Mass (x1,000 km)',
@@ -712,6 +801,15 @@ export default {
                     console.error(error)
                     this.getPortfolio();
                 })
+        },
+        clickWealthPair(wealthPair) {
+            this.wealthPair = wealthPair;
+            this.showDetail = true;
+            this.$refs.detailWealthPairModal.show();
+        },
+        hideDetailWealthPairModal() {
+            evt.preventDefault();
+            this.$refs.detailWealthPairModal.hide();
         },
 
         async refreshPortfolioPanels() {
