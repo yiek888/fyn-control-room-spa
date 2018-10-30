@@ -179,14 +179,15 @@
                 </thead>
                 <tbody>
                     <!-- <tr v-for="(wealthPair, uid) in incomeWealthPairs" :key="uid" v-b-modal.detailWealthPair-Modal> -->
-                    <tr v-for="(wealthPair, uid) in incomeWealthPairs" :key="uid" v-on:click="clickWealthPair(wealthPair)">
+                    <!-- <tr v-for="(wealthPair, uid) in incomeWealthPairs" :key="uid" v-on:click="clickWealthPair(wealthPair)"> -->
+                    <tr v-for="(wealthPair, uid) in incomeWealthPairs" :key="uid">
                         <td>{{ wealthPair.deal.asset.name }}</td>
                         <td>{{ wealthPair.debtToAssetRatio }}</td>
                         <td>{{ wealthPair.cashFlow }}</td>
                         <td>{{ wealthPair.reserves }}</td>
                         <td>{{ wealthPair.equity }}</td>
                         <td>
-                            <b-button size="sm" variant="warning" v-b-modal.editWealthPair-modal @click="editWealthPair(wealthPair, uid)">Edit</b-button>
+                            <b-button size="sm" variant="warning" v-b-modal.editWealthPair-modal @click="editWealthPair(wealthPair, uid)">Details</b-button>
                             <b-button size="sm" variant="danger" @click="onDeleteWealthPair(uid)">Delete</b-button>
                         </td>
                     </tr>
@@ -212,7 +213,7 @@
                         <td>{{ wealthPair.reserves }}</td>
                         <td>{{ wealthPair.equity }}</td>
                         <td>
-                            <b-button size="sm" variant="warning" v-b-modal.editWealthPair-modal @click="editWealthPair(wealthPair, uid)">Edit</b-button>
+                            <b-button size="sm" variant="warning" v-b-modal.editWealthPair-modal @click="editWealthPair(wealthPair, uid)">Details</b-button>
                             <b-button size="sm" variant="danger" @click="onDeleteWealthPair(uid)">Delete</b-button>
                         </td>
                     </tr>
@@ -238,7 +239,7 @@
                         <td>{{ wealthPair.reserves }}</td>
                         <td>{{ wealthPair.equity }}</td>
                         <td>
-                            <b-button size="sm" variant="warning" v-b-modal.editWealthPair-modal @click="editWealthPair(wealthPair, uid)">Edit</b-button>
+                            <b-button size="sm" variant="warning" v-b-modal.editWealthPair-modal @click="editWealthPair(wealthPair, uid)">Details</b-button>
                             <b-button size="sm" variant="danger" @click="onDeleteWealthPair(uid)">Delete</b-button>
                         </td>
                     </tr>
@@ -253,6 +254,181 @@
                 title="Edit wealth pair"
                 hide-footer>
             <b-form @submit="onSubmitUpdate" @reset="onResetUpdate">
+                <h1>{{wealthPair.deal.asset.name}} Summary</h1>
+                <canvas id="wealthPair-projection-chart"></canvas>
+                <div v-if="wealthPair.deal.asset.assetType!='growthAsset'">
+                    <b-container>
+                        <b-row>
+                            <b-col>Value</b-col>
+                            <b-col>{{wealthPair.deal.asset.value}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Debt</b-col>
+                            <b-col>{{wealthPair.deal.financing.leverage.amount}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Equity</b-col>
+                            <b-col>{{wealthPair.deal.financing.equity.equityCapital.amount + wealthPair.deal.financing.equity.myCapital.amount}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col></b-col>
+                            <b-col>Mine - {{wealthPair.deal.financing.equity.myCapital.amount}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col></b-col>
+                            <b-col>Partner - {{wealthPair.deal.financing.equity.equityCapital.amount}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col></b-col>
+                            <b-col>% Split - {{wealthPair.deal.financing.equity.equityCapital.percentSplit}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Income</b-col>
+                            <b-col>{{wealthPair.deal.asset.income}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Operating Expenses</b-col>
+                            <b-col>{{wealthPair.deal.asset.operatingExpenses}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Net Operating Income</b-col>
+                            <b-col>{{wealthPair.deal.asset.noi}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Cap Rate</b-col>
+                            <b-col>{{wealthPair.deal.asset.capRate}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Reserves</b-col>
+                            <b-col>{{wealthPair.reserves}} ({{wealthPair.reservesInMonths}} months)</b-col>
+                        </b-row>
+                    </b-container>
+                    <h2>Return</h2>
+                    <b-container>
+                        <b-row>
+                            <b-col>Return on Equity</b-col>
+                            <b-col>{{wealthPair.roe}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Equity Partner Return</b-col>
+                            <b-col>{{wealthPair.equityROI}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>My Return</b-col>
+                            <b-col>{{wealthPair.myROI}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Total Cash Flow</b-col>
+                            <b-col>{{wealthPair.cashFlow}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Equity Partner Cash Flow</b-col>
+                            <b-col>{{wealthPair.equityPartnerCashFlow}}</b-col>
+                        </b-row>
+                        <b-row>
+                        <b-col>My Cash Flow</b-col>
+                        <b-col>{{wealthPair.myCashFlow}}</b-col>
+                        </b-row>
+                    </b-container>
+                    <h2>Risk</h2>
+                    <b-container>
+                        <b-row>
+                            <b-col>DCR</b-col>
+                            <b-col>{{wealthPair.dcr}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>BER</b-col>
+                            <b-col>{{wealthPair.ber}}</b-col>
+                        </b-row>
+                    </b-container>
+                </div>
+                <div v-if="wealthPair.deal.asset.assetType=='growthAsset'">
+                    <b-container>
+                        <b-row>
+                            <b-col>Initial Value</b-col>
+                            <b-col>{{wealthPair.deal.asset.initialValue}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Projected Appr. Rate</b-col>
+                            <b-col>{{wealthPair.deal.asset.appreciationRate}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Term</b-col>
+                            <b-col>{{wealthPair.deal.asset.term}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Equity Financing Amount</b-col>
+                            <b-col>{{wealthPair.deal.financing.equity.equityCapital.initialAmount}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>% Split</b-col>
+                            <b-col>{{wealthPair.deal.financing.equity.equityCapital.percentSplit}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>My Capital</b-col>
+                            <b-col>{{wealthPair.deal.financing.equity.myCapital.initialAmount}}</b-col>
+                        </b-row>
+                    </b-container>
+                    <h2>Projected Return</h2>
+                    <b-container>
+                        <b-row>
+                            <b-col>Projected Future Value</b-col>
+                            <b-col>{{wealthPair.deal.asset.futureValue}}</b-col>
+                        </b-row>
+                        <!-- FIXME ASSUMPTION: User has chosen accruing leverage with the growth asset. -->
+                        <b-row>
+                            <b-col>Future Loan Amount</b-col>
+                            <b-col>{{wealthPair.deal.financing.leverage.futureValue}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Amount to Split</b-col>
+                            <b-col>{{wealthPair.amountToSplit}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Profit to Partner</b-col>
+                            <b-col>{{wealthPair.profitToPartner}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Profit to You</b-col>
+                            <b-col>{{wealthPair.profitToYou}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>ROE over the years</b-col>
+                            <b-col>{{wealthPair.roeOverTerm}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>My Equiv. Return</b-col>
+                            <b-col></b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Partner's Equiv. Return</b-col>
+                            <b-col></b-col>
+                        </b-row>
+                    </b-container>
+                    <h2>Current Return</h2>
+                    <b-container>
+                        <b-row>
+                            <b-col>Year</b-col>
+                            <b-col>{{wealthPair.deal.asset.year}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>My Equity</b-col>
+                            <b-col>{{wealthPair.deal.financing.equity.myCapital.amount}}</b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col>Partner Equity</b-col>
+                            <b-col>{{wealthPair.deal.financing.equity.equityCapital.amount}}</b-col>
+                        </b-row>
+                    </b-container>
+                    <h2>Risk</h2>
+                    <b-container>
+                        <b-row>
+                            <b-col>Critical Low</b-col>
+                            <b-col>{{wealthPair.deal.asset.criticalLow}}</b-col>
+                        </b-row>
+                    </b-container>
+                </div>
+
                 <b-card bg-variant="light">
                     <b-form-group
                             breakpoint="lg"
@@ -289,7 +465,7 @@
                                 label="Appreciation Rate (%):"
                                 label-class="text-sm-right"
                                 label-for="appreciationRate">
-                            <b-form-input type="number" v-model="editForm.appreciationRate"></b-form-input>
+                            <b-form-input type="number" step=any min=0 v-model="editForm.appreciationRate"></b-form-input>
                         </b-form-group>
                         <b-form-group horizontal
                                 label="Term (years):"
@@ -318,7 +494,7 @@
                                 label="Interest Rate (%):"
                                 label-class="text-sm-right"
                                 label-for="interestRate">
-                                <b-form-input type=number v-model="editForm.interestRate"></b-form-input>
+                                <b-form-input type=number step=any min=0 v-model="editForm.interestRate"></b-form-input>
                             </b-form-group>
                                 <b-form-group horizontal
                                 label="Term (years)"
@@ -345,19 +521,19 @@
                                 label="Equity Partner Amount:"
                                 label-class="text-sm-right"
                                 label-for="equityAmount">
-                                <b-form-input type=number v-model="editForm.equityAmount"></b-form-input>
+                                <b-form-input type=number step=any min=0 v-model="editForm.equityAmount"></b-form-input>
                             </b-form-group>
                             <b-form-group horizontal
                                 label="Profit Split (%):"
                                 label-class="text-sm-right"
                                 label-for="equitySplit">
-                                <b-form-input type=number v-model="editForm.equitySplit"></b-form-input>
+                                <b-form-input type=number step=any min=0 v-model="editForm.equitySplit"></b-form-input>
                             </b-form-group>
                                 <b-form-group horizontal
                                 label="My Capital Amount:"
                                 label-class="text-sm-right"
                                 label-for="myCapital">
-                                <b-form-input type=number v-model="editForm.myCapital"></b-form-input>
+                                <b-form-input type=number step=any min=0 v-model="editForm.myCapital"></b-form-input>
                             </b-form-group>
                         </b-form-group>
                     </b-card>
@@ -386,88 +562,6 @@
                 <b-button type="submit" variant="primary">Update</b-button>
                 <b-button type="reset" variant="danger">Reset</b-button>
             </b-form>
-        </b-modal>
-
-        <b-modal ref="detailWealthPairModal"
-                id="detailWealthPair-Modal"
-                title="Wealth Pair Detail">
-            <h1>{{wealthPair.deal.asset.name}} Summary</h1>
-            <b-container>
-                <b-row>
-                    <b-col>Value</b-col>
-                    <b-col>{{wealthPair.deal.asset.value}}</b-col>
-                </b-row>
-                <b-row>
-                    <b-col>Debt</b-col>
-                    <b-col>{{wealthPair.deal.financing.leverage.amount}}</b-col>
-                </b-row>
-                <b-row>
-                    <b-col>Equity</b-col>
-                    <b-col>{{wealthPair.deal.financing.equity.equityCapital.amount + wealthPair.deal.financing.equity.myCapital.amount}}</b-col>
-                </b-row>
-                <b-row>
-                    <b-col></b-col>
-                    <b-col>Mine - {{wealthPair.deal.financing.equity.myCapital.amount}}</b-col>
-                </b-row>
-                <b-row>
-                    <b-col></b-col>
-                    <b-col>Partner - {{wealthPair.deal.financing.equity.equityCapital.amount}}</b-col>
-                </b-row>
-                <b-row>
-                    <b-col></b-col>
-                    <b-col>% Split - {{wealthPair.deal.financing.equity.equityCapital.percentSplit}}</b-col>
-                </b-row>
-                <b-row>
-                    <b-col>Net Operating Income</b-col>
-                    <b-col>{{wealthPair.deal.asset.noi}}</b-col>
-                </b-row>
-                <b-row>
-                    <b-col>Cap Rate</b-col>
-                    <b-col>{{wealthPair.deal.asset.capRate}}</b-col>
-                </b-row>
-                <b-row>
-                    <b-col>Reserves</b-col>
-                    <b-col>{{wealthPair.reserves}} ({{wealthPair.reservesInMonths}} months)</b-col>
-                </b-row>
-            </b-container>
-            <h2>Return</h2>
-            <b-container>
-                <b-row>
-                    <b-col>Return on Equity</b-col>
-                    <b-col>{{wealthPair.roe}}</b-col>
-                </b-row>
-                <b-row>
-                    <b-col>Equity Partner Return</b-col>
-                    <b-col>{{wealthPair.equityROI}}</b-col>
-                </b-row>
-                <b-row>
-                    <b-col>My Return</b-col>
-                    <b-col>{{wealthPair.myROI}}</b-col>
-                </b-row>
-                <b-row>
-                    <b-col>Total Cash Flow</b-col>
-                    <b-col>{{wealthPair.cashFlow}}</b-col>
-                </b-row>
-                <b-row>
-                    <b-col>Equity Partner Cash Flow</b-col>
-                    <b-col>{{wealthPair.equityPartnerCashFlow}}</b-col>
-                </b-row>
-                <b-row>
-                <b-col>My Cash Flow</b-col>
-                <b-col>{{wealthPair.myCashFlow}}</b-col>
-                </b-row>
-            </b-container>
-            <h2>Risk</h2>
-            <b-container>
-                <b-row>
-                    <b-col>DCR</b-col>
-                    <b-col>{{wealthPair.dcr}}</b-col>
-                </b-row>
-                <b-row>
-                    <b-col>BER</b-col>
-                    <b-col>{{wealthPair.ber}}</b-col>
-                </b-row>
-            </b-container>
         </b-modal>
 
     </div>
@@ -552,7 +646,10 @@ export default {
                     }
                 }
             },
+            editUid:'',
             showDetail:false,
+            wealthPairProjection:{},
+            wealthPairProjectionChartData:{},
         };
     },
     methods: {
@@ -661,11 +758,12 @@ export default {
                     };
 
                     const ctx = document.getElementById('projection-chart');
-                    new Chart(ctx, {
+                    this.portfolioChart = new Chart(ctx, {
                       type: this.projectionChartData.type,
                       data: this.projectionChartData.data,
                       options: this.projectionChartData.options,
                     });
+                    this.portfolioChart.update()
                 })
                 .catch((error) => {
                     // eslint-disable-next-line
@@ -727,11 +825,11 @@ export default {
                 assetValue: wealthPair.deal.asset.value,
                 assetIncome: wealthPair.deal.asset.income,
                 operatingExpenses: wealthPair.deal.asset.operatingExpenses,
-                appreciationRate: wealthPair.deal.asset.appreciationRate,
+                appreciationRate: wealthPair.deal.asset.appreciationRate * 100,
                 term: wealthPair.deal.asset.term,
                 leverageType: wealthPair.deal.financing.leverage.leverageType,
                 leverageAmount: wealthPair.deal.financing.leverage.amount,
-                interestRate: wealthPair.deal.financing.leverage.interestRate,
+                interestRate: wealthPair.deal.financing.leverage.interestRate * 100,
                 leverageTerm: wealthPair.deal.financing.leverage.term,
                 paymentFreq: wealthPair.deal.financing.leverage.numPayments,
                 equityAmount: wealthPair.deal.financing.equity.equityCapital.initialAmount,
@@ -740,6 +838,105 @@ export default {
                 equityReserves: wealthPair.deal.reserves.equityCapital,
                 myReserves: wealthPair.deal.reserves.myCapital
             };
+            this.wealthPair = wealthPair;
+            this.editUid = uid;
+
+            const path=`http://localhost:5000/newAPI/${uid}`;
+            axios.get(path)
+                .then((res) => {
+                    this.wealthPairProjection = res.data.wealthPairProjection;
+
+                    this.wealthPairProjectionChartData = {
+                        type: 'line',
+                        data: {
+                            labels: this.wealthPairProjection.xx,
+                            datasets: [
+                                { // one line graph
+                                    label: 'Assets',
+                                    data: this.wealthPairProjection.assets,
+                                    backgroundColor: [
+                                      'rgba(66, 134, 244,.1)' // Blue
+                                    ],
+                                    borderColor: [
+                                      '#3e95cd'
+                                    ],
+                                    borderWidth: 3
+                                },
+                                { // another line graph
+                                    label: 'Debts',
+                                    data: this.wealthPairProjection.debts,
+                                    backgroundColor: [
+                                      'rgba(255, 28, 7,.2)', // Red
+                                    ],
+                                    borderColor: [
+                                      '#ff1c07',
+                                    ],
+                                    borderWidth: 3,
+                                },
+                                { // another line graph
+                                    label: 'Equity',
+                                    data: this.wealthPairProjection.equitys,
+                                    backgroundColor: [
+                                      'rgba(12, 150, 42,.1)', // Green
+                                    ],
+                                    borderColor: [
+                                      '#0c962a',
+                                    ],
+                                    borderWidth: 3
+                                },
+                                { // another line graph
+                                    label: 'Cumulative Cashflows',
+                                    data: this.wealthPairProjection.cashFlows,
+                                    borderColor: [
+                                      '#000000' // Black
+                                    ],
+                                    borderWidth: 3
+                                },
+                                { // another line graph
+                                    label: 'Combined Equity/Cashflows',
+                                    data: this.wealthPairProjection.equityAndCashFlows,
+                                    backgroundColor: [
+                                      'rgba(255, 250, 0,.2)', // Yellow
+                                    ],
+                                    borderColor: [
+                                      '#fff600', // Yellow
+                                    ],
+                                    borderWidth: 3,
+                                },
+                              // { // another line graph
+                              //   label: 'Planet Mass (x1,000 km)',
+                              //   data: [4.8, 12.1, 12.7, 6.7, 139.8, 116.4, 50.7, 49.2],
+                              //   backgroundColor: [
+                              //     'rgba(71, 183,132,.5)', // Green
+                              //   ],
+                              //   borderColor: [
+                              //     '#47b784',
+                              //   ],
+                              //   borderWidth: 3
+                              // }
+                          ]
+                        },
+                        options: {
+                            responsive: true,
+                            lineTension: 1,
+                            scales: {
+                              yAxes: [{
+                                ticks: {
+                                  beginAtZero: true,
+                                  padding: 25,
+                                }
+                              }]
+                            }
+                        }
+                    }
+
+                    const ctx = document.getElementById('wealthPair-projection-chart');
+                    new Chart(ctx, {
+                      type: this.wealthPairProjectionChartData.type,
+                      data: this.wealthPairProjectionChartData.data,
+                      options: this.wealthPairProjectionChartData.options,
+                    });
+                })
         },
         onSubmitUpdate(evt) {
             evt.preventDefault();
@@ -785,6 +982,26 @@ export default {
         },
         onResetUpdate(evt) {
             evt.preventDefault();
+            this.editForm = {
+                uid: this.editUid,
+                assetType: this.wealthPair.deal.asset.assetType,
+                assetName: this.wealthPair.deal.asset.name,
+                assetValue: this.wealthPair.deal.asset.value,
+                assetIncome: this.wealthPair.deal.asset.income,
+                operatingExpenses: this.wealthPair.deal.asset.operatingExpenses,
+                appreciationRate: this.wealthPair.deal.asset.appreciationRate,
+                term: this.wealthPair.deal.asset.term,
+                leverageType: this.wealthPair.deal.financing.leverage.leverageType,
+                leverageAmount: this.wealthPair.deal.financing.leverage.amount,
+                interestRate: this.wealthPair.deal.financing.leverage.interestRate,
+                leverageTerm: this.wealthPair.deal.financing.leverage.term,
+                paymentFreq: this.wealthPair.deal.financing.leverage.numPayments,
+                equityAmount: this.wealthPair.deal.financing.equity.equityCapital.initialAmount,
+                equitySplit: this.wealthPair.deal.financing.equity.equityCapital.percentSplit,
+                myCapital: this.wealthPair.deal.financing.equity.myCapital.initialAmount,
+                equityReserves: this.wealthPair.deal.reserves.equityCapital,
+                myReserves: this.wealthPair.deal.reserves.myCapital
+            };
         },
         onDeleteWealthPair(uid) {
             const path = `http://localhost:5000/newAPI/${uid}`;
@@ -808,7 +1025,6 @@ export default {
             this.$refs.detailWealthPairModal.show();
         },
         hideDetailWealthPairModal() {
-            evt.preventDefault();
             this.$refs.detailWealthPairModal.hide();
         },
 
