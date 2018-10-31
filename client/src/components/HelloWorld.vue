@@ -256,177 +256,24 @@
             <b-form @submit="onSubmitUpdate" @reset="onResetUpdate">
                 <h1>{{wealthPair.deal.asset.name}} Summary</h1>
                 <canvas id="wealthPair-projection-chart"></canvas>
-                <div v-if="wealthPair.deal.asset.assetType!='growthAsset'">
-                    <b-container>
-                        <b-row>
-                            <b-col>Value</b-col>
-                            <b-col>{{wealthPair.deal.asset.value}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Debt</b-col>
-                            <b-col>{{wealthPair.deal.financing.leverage.amount}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Equity</b-col>
-                            <b-col>{{wealthPair.deal.financing.equity.equityCapital.amount + wealthPair.deal.financing.equity.myCapital.amount}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col></b-col>
-                            <b-col>Mine - {{wealthPair.deal.financing.equity.myCapital.amount}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col></b-col>
-                            <b-col>Partner - {{wealthPair.deal.financing.equity.equityCapital.amount}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col></b-col>
-                            <b-col>% Split - {{wealthPair.deal.financing.equity.equityCapital.percentSplit}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Income</b-col>
-                            <b-col>{{wealthPair.deal.asset.income}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Operating Expenses</b-col>
-                            <b-col>{{wealthPair.deal.asset.operatingExpenses}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Net Operating Income</b-col>
-                            <b-col>{{wealthPair.deal.asset.noi}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Cap Rate</b-col>
-                            <b-col>{{wealthPair.deal.asset.capRate}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Reserves</b-col>
-                            <b-col>{{wealthPair.reserves}} ({{wealthPair.reservesInMonths}} months)</b-col>
-                        </b-row>
-                    </b-container>
-                    <h2>Return</h2>
-                    <b-container>
-                        <b-row>
-                            <b-col>Return on Equity</b-col>
-                            <b-col>{{wealthPair.roe}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Equity Partner Return</b-col>
-                            <b-col>{{wealthPair.equityROI}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>My Return</b-col>
-                            <b-col>{{wealthPair.myROI}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Total Cash Flow</b-col>
-                            <b-col>{{wealthPair.cashFlow}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Equity Partner Cash Flow</b-col>
-                            <b-col>{{wealthPair.equityPartnerCashFlow}}</b-col>
-                        </b-row>
-                        <b-row>
-                        <b-col>My Cash Flow</b-col>
-                        <b-col>{{wealthPair.myCashFlow}}</b-col>
-                        </b-row>
-                    </b-container>
-                    <h2>Risk</h2>
-                    <b-container>
-                        <b-row>
-                            <b-col>DCR</b-col>
-                            <b-col>{{wealthPair.dcr}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>BER</b-col>
-                            <b-col>{{wealthPair.ber}}</b-col>
-                        </b-row>
-                    </b-container>
+                <div v-if="wealthPair.deal.asset.assetType=='incomeAsset'">
+                    <income-asset-summary :wealthPair="wealthPair"></income-asset-summary>
+                    <returns-on-income :wealthPair="wealthPair"></returns-on-income>
+                    <income-risk-metrics :wealthPair="wealthPair"></income-risk-metrics>
                 </div>
                 <div v-if="wealthPair.deal.asset.assetType=='growthAsset'">
-                    <b-container>
-                        <b-row>
-                            <b-col>Initial Value</b-col>
-                            <b-col>{{wealthPair.deal.asset.initialValue}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Projected Appr. Rate</b-col>
-                            <b-col>{{wealthPair.deal.asset.appreciationRate}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Term</b-col>
-                            <b-col>{{wealthPair.deal.asset.term}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Equity Financing Amount</b-col>
-                            <b-col>{{wealthPair.deal.financing.equity.equityCapital.initialAmount}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>% Split</b-col>
-                            <b-col>{{wealthPair.deal.financing.equity.equityCapital.percentSplit}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>My Capital</b-col>
-                            <b-col>{{wealthPair.deal.financing.equity.myCapital.initialAmount}}</b-col>
-                        </b-row>
-                    </b-container>
-                    <h2>Projected Return</h2>
-                    <b-container>
-                        <b-row>
-                            <b-col>Projected Future Value</b-col>
-                            <b-col>{{wealthPair.deal.asset.futureValue}}</b-col>
-                        </b-row>
-                        <!-- FIXME ASSUMPTION: User has chosen accruing leverage with the growth asset. -->
-                        <b-row>
-                            <b-col>Future Loan Amount</b-col>
-                            <b-col>{{wealthPair.deal.financing.leverage.futureValue}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Amount to Split</b-col>
-                            <b-col>{{wealthPair.amountToSplit}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Profit to Partner</b-col>
-                            <b-col>{{wealthPair.profitToPartner}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Profit to You</b-col>
-                            <b-col>{{wealthPair.profitToYou}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>ROE over the years</b-col>
-                            <b-col>{{wealthPair.roeOverTerm}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>My Equiv. Return</b-col>
-                            <b-col></b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Partner's Equiv. Return</b-col>
-                            <b-col></b-col>
-                        </b-row>
-                    </b-container>
-                    <h2>Current Return</h2>
-                    <b-container>
-                        <b-row>
-                            <b-col>Year</b-col>
-                            <b-col>{{wealthPair.deal.asset.year}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>My Equity</b-col>
-                            <b-col>{{wealthPair.deal.financing.equity.myCapital.amount}}</b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>Partner Equity</b-col>
-                            <b-col>{{wealthPair.deal.financing.equity.equityCapital.amount}}</b-col>
-                        </b-row>
-                    </b-container>
-                    <h2>Risk</h2>
-                    <b-container>
-                        <b-row>
-                            <b-col>Critical Low</b-col>
-                            <b-col>{{wealthPair.deal.asset.criticalLow}}</b-col>
-                        </b-row>
-                    </b-container>
+                    <appreciation-asset-summary :wealthPair="wealthPair"></appreciation-asset-summary>
+                    <returns-on-appreciation :wealthPair="wealthPair"></returns-on-appreciation>
+                    <appreciation-risk-metrics :wealthPair="wealthPair"></appreciation-risk-metrics>
+                </div>
+                <div v-if="wealthPair.deal.asset.assetType=='bothAsset'">
+                    <income-asset-summary :wealthPair="wealthPair"></income-asset-summary>
+                    <returns-on-income :wealthPair="wealthPair"></returns-on-income>
+                    <income-risk-metrics :wealthPair="wealthPair"></income-risk-metrics>
+                    <br/>
+                    <br/>
+                    <appreciation-asset-summary :wealthPair="wealthPair"></appreciation-asset-summary>
+                    <returns-on-appreciation :wealthPair="wealthPair"></returns-on-appreciation>
                 </div>
 
                 <b-card bg-variant="light">
@@ -573,6 +420,12 @@ import PortfolioService from '@/services/PortfolioService'
 import axios from 'axios'
 import Alert from './Alert'
 import Chart from 'chart.js'
+import IncomeAssetSummary from './IncomeAssetSummary'
+import ReturnsOnIncome from './ReturnsOnIncome'
+import IncomeRiskMetrics from './IncomeRiskMetrics'
+import AppreciationAssetSummary from './AppreciationAssetSummary'
+import ReturnsOnAppreciation from './ReturnsOnAppreciation'
+import AppreciationRiskMetrics from './AppreciationRiskMetrics'
 
 export default {
     data () {
@@ -1060,7 +913,13 @@ export default {
         this.getPortfolio();
     },
     components: {
-        alert: Alert
+        alert: Alert,
+        'income-asset-summary': IncomeAssetSummary,
+        'returns-on-income': ReturnsOnIncome,
+        'income-risk-metrics': IncomeRiskMetrics,
+        'appreciation-asset-summary': AppreciationAssetSummary,
+        'returns-on-appreciation': ReturnsOnAppreciation,
+        'appreciation-risk-metrics': AppreciationRiskMetrics,
     }
 };
 </script>
